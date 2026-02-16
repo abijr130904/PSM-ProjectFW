@@ -9,6 +9,7 @@ class Article extends Model
 {
     use HasUuids;
 
+    protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
 
