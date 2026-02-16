@@ -27,6 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->favicon(asset('assets/IC-PSM.jpg'))
             ->colors([
                 'primary' => Color::Amber,
             ])
