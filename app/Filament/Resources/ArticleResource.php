@@ -3,27 +3,54 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticleResource\Pages;
-use App\Filament\Resources\ArticleResource\RelationManagers;
-use App\Models\Article\Article;
+use App\Models\Pages\Article;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class ArticleResource extends Resource
 {
     protected static ?string $model = Article::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationLabel = 'Artikel';
+    protected static ?string $navigationGroup = 'Manajemen Konten';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+
+                Forms\Components\TextInput::make('title')
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(
+                        fn($state, callable $set) =>
+                        $set('slug', Str::slug($state))
+                    ),
+
+                Forms\Components\TextInput::make('slug')
+                    ->required()
+                    ->unique(ignoreRecord: true),
+
+                Forms\Components\FileUpload::make('thumbnail')
+                    ->image()
+                    ->directory('articles')
+                    ->disk('public')
+                    ->required(),
+
+                Forms\Components\Textarea::make('excerpt')
+                    ->rows(3)
+                    ->maxLength(200)
+                    ->helperText('Kosongkan jika ingin otomatis dari content'),
+
+                Forms\Components\RichEditor::make('content')
+                    ->required()
+                    ->columnSpanFull(),
+
             ]);
     }
 
@@ -31,26 +58,30 @@ class ArticleResource extends Resource
     {
         return $table
             ->columns([
-                //
-            ])
-            ->filters([
-                //
+                Tables\Columns\ImageColumn::make('thumbnail')
+                    ->disk('public'),
+                Tables\Columns\TextColumn::make('title')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime('d M Y'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteAction::make(),
             ]);
     }
 
-    public static function getRelations(): array
+    protected static function mutateFormDataBeforeCreate(array $data): array
     {
-        return [
-            //
-        ];
+        $data['excerpt'] = Str::limit(strip_tags($data['content']), 150);
+        return $data;
+    }
+
+    protected static function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['excerpt'] = Str::limit(strip_tags($data['content']), 150);
+        return $data;
     }
 
     public static function getPages(): array
