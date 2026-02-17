@@ -4,12 +4,20 @@ namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pages\Program;
+use Illuminate\Http\Request;
 
 class ProgramController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $programs = Program::latest()->get();
-        return view('pages.program', compact('programs'));
+        $perPage = $request->get('perPage', 10);
+
+        if ($perPage == 'all') {
+            $programs = Program::latest()->get();
+        } else {
+            $programs = Program::latest()->paginate((int)$perPage)->withQueryString();
+        }
+
+        return view('pages.program', compact('programs', 'perPage'));
     }
 }

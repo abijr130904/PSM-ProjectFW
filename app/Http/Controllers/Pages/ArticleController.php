@@ -4,13 +4,21 @@ namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pages\Article;
+use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $articles = Article::latest()->get();
-        return view('pages.articles.index', compact('articles'));
+        $perPage = $request->get('perPage', 10);
+
+        if ($perPage == 'all') {
+            $articles = Article::latest()->get();
+        } else {
+            $articles = Article::latest()->paginate((int)$perPage)->withQueryString();
+        }
+
+        return view('pages.articles.index', compact('articles', 'perPage'));
     }
 
     public function show($slug)

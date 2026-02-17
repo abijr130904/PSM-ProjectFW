@@ -32,9 +32,52 @@ class MemberResource extends Resource
                 ->required()
                 ->maxLength(255),
 
-            Forms\Components\TextInput::make('position')
+            Forms\Components\Select::make('position')
+                ->label('Jabatan')
                 ->required()
-                ->maxLength(255),
+                ->searchable()
+                ->options([
+
+                    // Badan Pengurus Harian
+                    'Ketua Umum' => 'Ketua Umum',
+                    'Wakil Ketua Umum' => 'Wakil Ketua Umum',
+                    'Sekretaris I' => 'Sekretaris I',
+                    'Sekretaris II' => 'Sekretaris II',
+                    'Bendahara I' => 'Bendahara I',
+                    'Bendahara II' => 'Bendahara II',
+
+                    // Divisi Keorganisasian
+                    'CO Keorganisasian' => 'CO Keorganisasian',
+
+                    // Divisi Keanggotaan
+                    'CO Keanggotaan' => 'CO Keanggotaan',
+                    'Anggota Keanggotaan' => 'Anggota Keanggotaan',
+
+                    // Divisi Kepelatihan
+                    'CO Kepelatihan' => 'CO Kepelatihan',
+                    'Anggota Kepelatihan' => 'Anggota Kepelatihan',
+
+                    // Divisi K3
+                    'CO K3' => 'CO K3',
+                    'Anggota K3' => 'Anggota K3',
+
+                    // Divisi Komforma
+                    'CO Komforma' => 'CO Komforma',
+                    'Anggota Komforma' => 'Anggota Komforma',
+
+                    // Divisi Kewirausahaan & Sponsorship
+                    'CO Kewirausahaan dan Sponsorship' => 'CO Kewirausahaan dan Sponsorship',
+                    'Anggota Kewirausahaan dan Sponsorship' => 'Anggota Kewirausahaan dan Sponsorship',
+
+                    // Divisi KSK
+                    'CO KSK' => 'CO KSK',
+                    'Anggota KSK' => 'Anggota KSK',
+
+                    // Divisi MIKAPRES
+                    'CO MIKAPRES' => 'CO MIKAPRES',
+
+                ])
+                ->placeholder('Pilih Jabatan'),
 
         ]);
     }
@@ -50,7 +93,8 @@ class MemberResource extends Resource
                 ->searchable()
                 ->sortable(),
 
-            Tables\Columns\TextColumn::make('position'),
+            Tables\Columns\TextColumn::make('position')
+                ->sortable(),
 
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime('d M Y'),
