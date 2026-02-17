@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UKM PSM Polije</title>
+    <title>UKM PSM</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="{{ asset('assets/IC-PSM.jpg') }}">
@@ -25,64 +25,6 @@
             }
         }
     </script>
-
-    <!-- Performance + Smooth Rendering -->
-    <style>
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
-        }
-
-        /* ===== SHIMMER EFFECT ===== */
-        .shimmer {
-            position: relative;
-            overflow: hidden;
-            background: #e5e7eb;
-        }
-
-        .shimmer::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -150%;
-            height: 100%;
-            width: 150%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255,255,255,0.6),
-                transparent
-            );
-            animation: shimmer 1.2s infinite;
-        }
-
-        @keyframes shimmer {
-            100% { left: 150%; }
-        }
-
-        /* Fade-in lightweight */
-        .fade-in {
-            opacity: 0;
-            transition: opacity .3s ease;
-        }
-
-        .fade-in.loaded {
-            opacity: 1;
-        }
-
-        /* Reduce heavy repaint on scroll */
-        img {
-            content-visibility: auto;
-        }
-
-        footer iframe {
-            content-visibility: auto;
-        }
-    </style>
 </head>
 
 <body class="bg-blue-50 text-gray-800">

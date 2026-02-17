@@ -10,6 +10,21 @@
 <section class="py-20 bg-blue-50">
     <div class="max-w-6xl mx-auto px-6">
 
+        {{-- FILTER PAGINATION --}}
+        <div class="flex justify-between items-center mb-10">
+            <form method="GET">
+                <select name="perPage" onchange="this.form.submit()"
+                        class="border border-blue-200 px-3 py-2 text-sm">
+                    @foreach([5,10,25,50,'all'] as $size)
+                        <option value="{{ $size }}"
+                            {{ $perPage == $size ? 'selected' : '' }}>
+                            {{ $size == 'all' ? 'All' : $size }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
+
         @if($articles->isEmpty())
 
         <div class="text-center py-20">
@@ -20,11 +35,11 @@
 
         @else
 
-        <div class="grid md:grid-cols-3 gap-10">
+        <div class="grid md:grid-cols-3 gap-10 animate-fade">
 
             @foreach($articles as $article)
             <a href="{{ route('artikel.show', $article->slug) }}"
-               class="bg-white border border-blue-100 block">
+               class="bg-white border border-blue-100 block hover:shadow-lg transition duration-300">
 
                 <img loading="lazy" decoding="async"
                      src="{{ $article->thumbnail ? asset('storage/'.$article->thumbnail) : 'https://via.placeholder.com/600x400' }}"
@@ -41,9 +56,28 @@
 
         </div>
 
+        {{-- PAGINATION LINKS --}}
+        @if(method_exists($articles, 'links'))
+        <div class="mt-16">
+            {{ $articles->links() }}
+        </div>
+        @endif
+
         @endif
 
     </div>
 </section>
 
 @endsection
+
+@push('styles')
+<style>
+.animate-fade {
+    animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity:0; transform: translateY(10px); }
+    to { opacity:1; transform: translateY(0); }
+}
+</style>
+@endpush
