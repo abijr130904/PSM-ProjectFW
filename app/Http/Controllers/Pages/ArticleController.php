@@ -8,17 +8,13 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $perPage = $request->get('perPage', 10);
+        $articles = Article::select('id', 'title', 'slug', 'thumbnail')
+            ->latest()
+            ->simplePaginate(9);
 
-        if ($perPage == 'all') {
-            $articles = Article::latest()->get();
-        } else {
-            $articles = Article::latest()->paginate((int)$perPage)->withQueryString();
-        }
-
-        return view('pages.articles.index', compact('articles', 'perPage'));
+        return view('pages.articles.index', compact('articles'));
     }
 
     public function show($slug)

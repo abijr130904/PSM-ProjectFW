@@ -8,16 +8,12 @@ use Illuminate\Http\Request;
 
 class ProgramController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $perPage = $request->get('perPage', 10);
+        $programs = Program::select('id', 'title', 'description', 'image')
+            ->latest()
+            ->simplePaginate(9); 
 
-        if ($perPage == 'all') {
-            $programs = Program::latest()->get();
-        } else {
-            $programs = Program::latest()->paginate((int)$perPage)->withQueryString();
-        }
-
-        return view('pages.program', compact('programs', 'perPage'));
+        return view('pages.program', compact('programs'));
     }
 }

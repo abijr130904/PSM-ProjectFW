@@ -38,9 +38,12 @@ class ArticleResource extends Resource
 
                 Forms\Components\FileUpload::make('thumbnail')
                     ->image()
-                    ->directory('articles')
-                    ->disk('public')
-                    ->required(),
+                    ->imageEditor()
+                    ->imageResizeMode('cover')
+                    ->imageCropAspectRatio('1:1')
+                    ->imageResizeTargetWidth(600)
+                    ->imageResizeTargetHeight(600)
+                    ->directory('articles'),
 
                 Forms\Components\Textarea::make('excerpt')
                     ->rows(3)

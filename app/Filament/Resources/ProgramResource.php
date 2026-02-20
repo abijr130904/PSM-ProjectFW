@@ -28,6 +28,11 @@ class ProgramResource extends Resource
 
             Forms\Components\FileUpload::make('image')
                 ->image()
+                ->imageEditor()
+                ->imageResizeMode('cover')
+                ->imageCropAspectRatio('3:2')
+                ->imageResizeTargetWidth(800)
+                ->imageResizeTargetHeight(533)
                 ->directory('programs')
                 ->disk('public')
                 ->required(),
@@ -55,10 +60,10 @@ class ProgramResource extends Resource
                 ->dateTime('d M Y'),
 
         ])
-        ->actions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
-        ]);
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ]);
     }
 
     public static function getPages(): array
