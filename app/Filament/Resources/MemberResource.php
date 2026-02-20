@@ -79,6 +79,23 @@ class MemberResource extends Resource
                 ])
                 ->placeholder('Pilih Jabatan'),
 
+            Forms\Components\Select::make('division')
+                ->label('Divisi')
+                ->required()
+                ->searchable()
+                ->options([
+                    'Badan Pengurus Harian' => 'Badan Pengurus Harian',
+                    'Keorganisasian' => 'Keorganisasian',
+                    'Keanggotaan' => 'Keanggotaan',
+                    'Kepelatihan' => 'Kepelatihan',
+                    'K3 (Koordinasi Kegiatan Kelembagaan)' => 'K3 (Koordinasi Kegiatan Kelembagaan)',
+                    'Komforma (Komunikasi dan Informasi)' => 'Komforma (Komunikasi dan Informasi)',
+                    'Kewirausahaan dan Sponsorship' => 'Kewirausahaan dan Sponsorship',
+                    'KSK (Kesekretariatan dan Logistik)' => 'KSK (Kesekretariatan dan Logistik)',
+                    'MIKAPRES (Minat, Bakat, dan Prestasi)' => 'MIKAPRES (Minat, Bakat, dan Prestasi)',
+                ])
+                ->placeholder('Pilih Divisi'),
+
         ]);
     }
 
@@ -96,14 +113,17 @@ class MemberResource extends Resource
             Tables\Columns\TextColumn::make('position')
                 ->sortable(),
 
+            Tables\Columns\TextColumn::make('division')
+                ->sortable()
+                ->searchable(),
+
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime('d M Y'),
-
         ])
-        ->actions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
-        ]);
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ]);
     }
 
     public static function getPages(): array
