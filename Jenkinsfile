@@ -1,8 +1,9 @@
 pipeline {
-    agent any
-
-    environment {
-        WORKSPACE_DIR = "${WORKSPACE}"
+    agent {
+        docker {
+            image 'php:8.2-cli'   // container resmi PHP
+            args '-u root'         // jalankan sebagai root supaya bisa write folder workspace
+        }
     }
 
     stages {
@@ -16,11 +17,11 @@ pipeline {
             }
         }
 
-        stage('Setup') {
+        stage('Install Composer') {
             steps {
-                echo "Memastikan composer dan PHP tersedia"
-                sh 'php -v'
-                sh 'composer --version || curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer'
+                sh 'php -r "copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');"'
+                sh 'php composer-setup.php'
+                sh 'mv composer.phar /usr/local/bin/composer'
             }
         }
 
@@ -30,27 +31,15 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo "Build Laravel project (misal migrate)"
-                sh 'php artisan migrate --force'
-            }
-        }
-
         stage('Test') {
             steps {
-                echo "Menjalankan test Laravel"
                 sh 'php artisan test'
             }
         }
     }
 
     post {
-        success {
-            echo "Pipeline berhasil ✅"
-        }
-        failure {
-            echo "Pipeline gagal ❌"
-        }
+        success { echo "Pipeline berhasil ✅" }
+        failure { echo "Pipeline gagal ❌" }
     }
 }
