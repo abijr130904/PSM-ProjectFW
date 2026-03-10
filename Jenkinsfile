@@ -19,7 +19,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.image("php:8.2-cli").inside("-u root") {
+                    docker.image('php:8.2-cli').inside {
                         sh '''
                             # Install PHP extensions needed for Laravel & Filament
                             apt-get update && apt-get install -y libicu-dev zip unzip zlib1g-dev libonig-dev libxml2-dev
