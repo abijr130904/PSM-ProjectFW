@@ -19,21 +19,21 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.image('php:8.2-cli').inside('-u root') {
+                    docker.image("php:8.2-cli").inside("-u root") {
                         sh '''
                             # Install PHP extensions needed for Laravel & Filament
                             apt-get update && apt-get install -y libicu-dev zip unzip zlib1g-dev libonig-dev libxml2-dev
                             docker-php-ext-install intl bcmath pcntl
 
-                            # Hapus composer.lock agar install terbaru sesuai composer.json
+                            # Remove old composer.lock to install fresh dependencies
                             rm -f composer.lock
 
-                            # Install Composer jika belum ada
+                            # Install Composer if not present
                             php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
                             php composer-setup.php --install-dir=/usr/local/bin --filename=composer
                             rm composer-setup.php
 
-                            # Install dependencies
+                            # Install PHP dependencies
                             composer install --no-interaction --prefer-dist
                         '''
                     }
@@ -44,8 +44,12 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image('ubuntu:22.04').inside('-u root') {
-                        sh 'echo "Pipeline testing success!"'
+                    docker.image("ubuntu:22.04").inside("-u root") {
+                        sh '''
+                            echo "Pipeline testing success!"
+                            # Optional: Run any test commands, e.g., Laravel artisan tests
+                            # php artisan test
+                        '''
                     }
                 }
             }
