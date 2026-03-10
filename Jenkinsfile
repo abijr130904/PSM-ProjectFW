@@ -2,66 +2,55 @@ pipeline {
     agent any
 
     environment {
-        WORKSPACE_DIR = "/var/jenkins_home/workspace/laravel-dev"
+        WORKSPACE_DIR = "${WORKSPACE}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
-                script {
-                    // Fix Git ownership warning
-                    sh "git config --global --add safe.directory ${WORKSPACE_DIR}"
-                }
+                git(
+                    url: 'https://github.com/abijr130904/PSM-ProjectFW.git',
+                    branch: 'main',
+                    credentialsId: 'devmos-github'
+                )
+            }
+        }
+
+        stage('Setup') {
+            steps {
+                echo "Memastikan composer dan PHP tersedia"
+                sh 'php -v'
+                sh 'composer --version || curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'composer install --no-interaction --prefer-dist'
             }
         }
 
         stage('Build') {
             steps {
-                script {
-                    docker.image('php:8.2-cli').inside {
-                        sh '''
-                            # Install PHP extensions needed for Laravel & Filament
-                            apt-get update && apt-get install -y libicu-dev zip unzip zlib1g-dev libonig-dev libxml2-dev
-                            docker-php-ext-install intl bcmath pcntl
-
-                            # Remove old composer.lock to install fresh dependencies
-                            rm -f composer.lock
-
-                            # Install Composer if not present
-                            php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-                            php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-                            rm composer-setup.php
-
-                            # Install PHP dependencies
-                            composer install --no-interaction --prefer-dist
-                        '''
-                    }
-                }
+                echo "Build Laravel project (misal migrate)"
+                sh 'php artisan migrate --force'
             }
         }
 
         stage('Test') {
             steps {
-                script {
-                    docker.image("ubuntu:22.04").inside("-u root") {
-                        sh '''
-                            echo "Pipeline testing success!"
-                            # Optional: Run any test commands, e.g., Laravel artisan tests
-                            # php artisan test
-                        '''
-                    }
-                }
+                echo "Menjalankan test Laravel"
+                sh 'php artisan test'
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline berhasil!"
+            echo "Pipeline berhasil ✅"
         }
         failure {
-            echo "Pipeline gagal. Periksa log build."
+            echo "Pipeline gagal ❌"
         }
     }
 }
