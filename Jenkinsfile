@@ -1,41 +1,49 @@
 pipeline {
     agent any
 
+    environment {
+        APP_NAME = 'laravel-app'
+        DOCKER_IMAGE = 'laravel-app-image'
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/username/repo-laravel.git'
             }
         }
 
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
-                script {
-                    docker.image('shippingdocker/php-composer:8.2').inside('-u root') {
-                        sh 'rm -f composer.lock'
-                        sh 'composer install'
-                    }
-                }
+                sh 'composer install --no-interaction --prefer-dist --optimize-autoloader'
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
-                script {
-                    docker.image('ubuntu').inside('-u root') {
-                        sh 'echo "Ini adalah test"'
-                    }
-                }
+                sh './vendor/bin/phpunit'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t $DOCKER_IMAGE ."
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh "docker run -d -p 8000:8000 --name $APP_NAME $DOCKER_IMAGE"
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline berhasil ✅"
+            echo 'Pipeline berhasil dijalankan!'
         }
         failure {
-            echo "Pipeline gagal ❌"
+            echo 'Pipeline gagal, cek log!'
         }
     }
 }
