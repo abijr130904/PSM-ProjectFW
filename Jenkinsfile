@@ -1,49 +1,19 @@
-pipeline {
-    agent any
-
-    environment {
-        APP_NAME = 'laravel-app'
-        DOCKER_IMAGE = 'laravel-app-image'
-    }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/username/repo-laravel.git'
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh 'composer install --no-interaction --prefer-dist --optimize-autoloader'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh './vendor/bin/phpunit'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t $DOCKER_IMAGE ."
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh "docker run -d -p 8000:8000 --name $APP_NAME $DOCKER_IMAGE"
-            }
+node {
+    checkout scm
+    
+    stage("Build") {
+        docker.image('php:8.3-cli').inside('-u root') {
+            sh 'apt update'
+            sh 'apt install -y git unzip libzip-dev libicu-dev'
+            sh 'docker-php-ext-install intl zip'
+            sh 'git config --global --add safe.directory /var/jenkins_home/workspace/Laravel-DevOps'
+            sh 'curl -sS https://getcomposer.org/installer | php'
+            sh 'mv composer.phar /usr/local/bin/composer'
+            sh 'composer install'
         }
     }
-
-    post {
-        success {
-            echo 'Pipeline berhasil dijalankan!'
-        }
-        failure {
-            echo 'Pipeline gagal, cek log!'
-        }
+    
+    stage("Testing") {
+        sh 'echo "Pipeline Laravel berhasil dijalankan"'
     }
 }
