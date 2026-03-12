@@ -36,9 +36,12 @@ pipeline {
             steps {
                 sshagent(credentials: ['ssh-prod']) {
                     sh '''
+                        # Install rsync jika belum ada
+                        apt update && apt install -y rsync
+        
                         # Membuat folder target di host deploy
                         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null gymwo@172.27.236.254 "mkdir -p ~/laravel-production"
-
+        
                         # Menyalin seluruh workspace ke host deploy
                         rsync -av -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" ./ gymwo@172.27.236.254:~/laravel-production
                     '''
@@ -59,3 +62,4 @@ pipeline {
         }
     }
 }
+
