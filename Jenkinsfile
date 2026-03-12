@@ -1,19 +1,51 @@
 node {
-    checkout scm
-    
-    stage("Build") {
-        docker.image('php:8.3-cli').inside('-u root') {
-            sh 'apt update'
-            sh 'apt install -y git unzip libzip-dev libicu-dev'
-            sh 'docker-php-ext-install intl zip'
-            sh 'git config --global --add safe.directory /var/jenkins_home/workspace/Laravel-DevOps'
-            sh 'curl -sS https://getcomposer.org/installer | php'
-            sh 'mv composer.phar /usr/local/bin/composer'
-            sh 'composer install'
+
+    stage('Clone Repository') {
+        checkout scm
+    }
+
+    stage('Install Dependency') {
+        docker.image('php:8.3-cli').inside {
+            sh '''
+            apt update
+            apt install -y git unzip curl libzip-dev libicu-dev
+            docker-php-ext-install intl zip
+
+            curl -sS https://getcomposer.org/installer | php
+            mv composer.phar /usr/local/bin/composer
+
+            composer install
+            '''
         }
     }
-    
-    stage("Testing") {
-        sh 'echo "Pipeline Laravel berhasil dijalankan"'
+
+    stage('Laravel Setup') {
+        docker.image('php:8.3-cli').inside {
+            sh '''
+            cp .env.example .env || true
+            php artisan key:generate
+            '''
+        }
     }
+
+    stage('Testing') {
+        docker.image('php:8.3-cli').inside {
+            sh '''
+            php artisan test || true
+            '''
+        }
+    }
+
+    stage('Build Docker Image') {
+        sh 'docker build -t laravel-app .'
+    }
+
+    stage('Deploy Container') {
+        sh '''
+        docker stop laravel-app || true
+        docker rm laravel-app || true
+        docker run -d -p 8000:8000 --name laravel-app laravel-app
+        '''
+    }
+
 }
