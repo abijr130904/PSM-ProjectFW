@@ -5,7 +5,7 @@ node {
     }
 
     stage('Build Container') {
-        sh 'docker compose build'
+        sh 'docker compose build --no-cache'
     }
 
     stage('Run Container') {
@@ -14,3 +14,4 @@ node {
     }
 
 }
+
