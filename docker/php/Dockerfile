@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM --platform=linux/amd64 php:8.3-fpm
 
 RUN apt update && apt install -y \
     git \
