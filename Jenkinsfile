@@ -12,13 +12,15 @@ pipeline {
             steps {
                 script {
                     docker.image('php:8.3-cli').inside('-u root') {
-                        sh 'apt update'
-                        sh 'apt install -y git unzip libzip-dev libicu-dev'
-                        sh 'docker-php-ext-install intl zip'
-                        sh 'git config --global --add safe.directory /var/jenkins_home/workspace/Laravel-DevOps'
-                        sh 'curl -sS https://getcomposer.org/installer | php'
-                        sh 'mv composer.phar /usr/local/bin/composer'
-                        sh 'composer install'
+                        sh '''
+                            apt update
+                            apt install -y git unzip libzip-dev libicu-dev rsync
+                            docker-php-ext-install intl zip
+                            git config --global --add safe.directory /var/jenkins_home/workspace/Laravel-DevOps
+                            curl -sS https://getcomposer.org/installer | php
+                            mv composer.phar /usr/local/bin/composer
+                            composer install
+                        '''
                     }
                 }
             }
@@ -35,10 +37,10 @@ pipeline {
                 sshagent(credentials: ['ssh-prod']) {
                     sh '''
                         # Membuat folder target di host deploy
-                        ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null gymwo@172.27.236.254 "mkdir -p ~/laravel-production"
+                        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null gymwo@172.27.236.254 "mkdir -p ~/laravel-production"
 
                         # Menyalin seluruh workspace ke host deploy
-                        rsync -av -e "ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" ./ gymwo@172.27.236.254:~/laravel-production
+                        rsync -av -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" ./ gymwo@172.27.236.254:~/laravel-production
                     '''
                 }
             }
