@@ -18,22 +18,25 @@ node {
     stage("Testing") {
         sh 'echo "Pipeline Laravel berhasil dijalankan"'
     }
-
-   stage("Deploy") {
-        sshagent(credentials: ['ssh-prod']) {
-            sh '''
-            mkdir -p ~/.ssh
-            chmod 700 ~/.ssh
-
-            ssh-keyscan -H 172.27.236.254  >> ~/.ssh/known_hosts
-
-            rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            ./ gymwo@172.27.236.254 :/home/gymwo/laravel-production
-            '''
+    
+    stage("Deploy") {
+        docker.image('php:8.3-cli').inside('-u root') {
+            sshagent(credentials: ['ssh-prod']) {
+                sh '''
+                    mkdir -p ~/.ssh
+                    chmod 700 ~/.ssh
+    
+                    ssh-keyscan -H 172.27.236.254 >> ~/.ssh/known_hosts
+    
+                    ssh gymwo@172.27.236.254 "mkdir -p ~/laravel-production"
+    
+                    rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
+                    ./ gymwo@172.27.236.254:/home/gymwo/laravel-production
+                '''
+            }
         }
     }
-}
+
 
 
 
