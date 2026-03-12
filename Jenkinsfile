@@ -22,7 +22,7 @@ node {
             sh '''
                 mkdir -p ~/.ssh
                 ssh-keyscan -H 127.0.0.1 >> ~/.ssh/known_hosts
-                rsync -av --delete ./ fenikszharovik@127.0.0.1:/home/fenikszharovik/laravel-production
+                rsync -av --delete ./ gymwo@127.0.0.1:/home/gymwo/laravel-production
             '''
         }
     }
