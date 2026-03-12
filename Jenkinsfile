@@ -21,9 +21,10 @@ node {
         sshagent(credentials: ['ssh-prod']) {
             sh '''
                 mkdir -p ~/.ssh
-                ssh-keyscan -H 172.27.236.254 >> ~/.ssh/known_hosts
-                rsync -av --delete ./ gymwo@172.27.236.254:/home/gymwo/laravel-production
+                ssh-keyscan -H 127.0.1.1 >> ~/.ssh/known_hosts
+                rsync -av --delete ./ gymwo@127.0.1.1:/home/gymwo/laravel-production
             '''
         }
     }
 }
+
