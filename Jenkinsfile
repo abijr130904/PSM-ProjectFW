@@ -4,16 +4,13 @@ node {
         checkout scm
     }
 
-    stage('Build Docker Image') {
-        sh 'docker build -t laravel-app .'
+    stage('Build Container') {
+        sh 'docker compose build'
     }
 
     stage('Run Container') {
-        sh '''
-        docker stop laravel-app || true
-        docker rm laravel-app || true
-        docker run -d -p 8000:8000 --name laravel-app laravel-app
-        '''
+        sh 'docker compose down || true'
+        sh 'docker compose up -d'
     }
 
 }
