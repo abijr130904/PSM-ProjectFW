@@ -35,10 +35,10 @@ pipeline {
                 sshagent(credentials: ['ssh-prod']) {
                     sh '''
                         # Membuat folder target di host deploy
-                        ssh -o StrictHostKeyChecking=no gymwo@127.0.0.1 "mkdir -p ~/laravel-production"
+                        ssh -o StrictHostKeyChecking=no gymwo@127.0.1.1 "mkdir -p ~/laravel-production"
 
                         # Menyalin seluruh workspace ke host deploy
-                        rsync -av --delete ./ gymwo@127.0.0.1:~/laravel-production
+                        rsync -av --delete ./ gymwo@127.0.1.1:~/laravel-production
                     '''
                 }
             }
@@ -57,3 +57,4 @@ pipeline {
         }
     }
 }
+
