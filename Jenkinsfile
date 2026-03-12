@@ -1,6 +1,6 @@
 node {
     checkout scm
-    
+
     stage("Build") {
         docker.image('php:8.3-cli').inside('-u root') {
             sh 'apt update'
@@ -12,8 +12,18 @@ node {
             sh 'composer install'
         }
     }
-    
+
     stage("Testing") {
         sh 'echo "Pipeline sukses"'
+    }
+
+    stage("Deploy") {
+        sshagent(credentials: ['ssh-prod']) {
+            sh '''
+                mkdir -p ~/.ssh
+                ssh-keyscan -H 127.0.0.1 >> ~/.ssh/known_hosts
+                rsync -av --delete ./ fenikszharovik@127.0.0.1:/home/fenikszharovik/laravel-production
+            '''
+        }
     }
 }
