@@ -1,51 +1,29 @@
-pipeline {
-    agent any
+node {
+    checkout scm
 
-    stages {
-        stage("Checkout") {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage("Build") {
-            steps {
-                script {
-                    // pakai image composer:2 yang sudah ada composer
-                    docker.image('composer:2').inside('-u root') {
-                        sh '''
-                            apt update
-                            apt install -y git unzip libzip-dev libicu-dev rsync
-                            docker-php-ext-install intl zip
-                            git config --global --add safe.directory /var/jenkins_home/workspace/Laravel-DevOps
-                            composer install
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage("Testing") {
-            steps {
-                sh 'echo "Pipeline sukses"'
-            }
-        }
-
-        stage("Deploy") {
-            steps {
-                sshagent(credentials: ['ssh-prod']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null gymwo@172.27.236.254 "mkdir -p ~/laravel-production"
-                        rsync -av -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" ./ gymwo@172.27.236.254:~/laravel-production
-                    '''
-                }
-            }
+    stage("Build") {
+        docker.image('php:8.3-cli').inside('-u root') {
+            sh 'apt update'
+            sh 'apt install -y git unzip libzip-dev libicu-dev'
+            sh 'docker-php-ext-install intl zip'
+            sh 'git config --global --add safe.directory /var/jenkins_home/workspace/Laravel-DevOps'
+            sh 'curl -sS https://getcomposer.org/installer | php'
+            sh 'mv composer.phar /usr/local/bin/composer'
+            sh 'composer install'
         }
     }
 
-    post {
-        always { echo "Pipeline selesai" }
-        success { echo "Pipeline berhasil!" }
-        failure { echo "Pipeline gagal. Periksa log!" }
+    stage("Testing") {
+        sh 'echo "Pipeline sukses"'
+    }
+
+    stage("Deploy") {
+        sshagent(credentials: ['ssh-prod']) {
+            sh '''
+                mkdir -p ~/.ssh
+                ssh-keyscan -H 172.27.236.254 >> ~/.ssh/known_hosts
+                rsync -av --delete ./ gymwo@172.27.236.254:/home/gymwo/laravel-production
+            '''
+        }
     }
 }
