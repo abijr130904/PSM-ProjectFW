@@ -11,14 +11,13 @@ pipeline {
         stage("Build") {
             steps {
                 script {
-                    docker.image('php:8.3-cli').inside('-u root') {
+                    // pakai image composer:2 yang sudah ada composer
+                    docker.image('composer:2').inside('-u root') {
                         sh '''
                             apt update
                             apt install -y git unzip libzip-dev libicu-dev rsync
                             docker-php-ext-install intl zip
                             git config --global --add safe.directory /var/jenkins_home/workspace/Laravel-DevOps
-                            curl -sS https://getcomposer.org/installer | php
-                            mv composer.phar /usr/local/bin/composer
                             composer install
                         '''
                     }
@@ -36,11 +35,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['ssh-prod']) {
                     sh '''
-                        # Membuat folder target di host deploy
                         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null gymwo@172.27.236.254 "mkdir -p ~/laravel-production"
-
-                        # Menyalin seluruh workspace ke host deploy
-                        # rsync dijalankan dari Jenkins container Build (yang sudah punya rsync)
                         rsync -av -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" ./ gymwo@172.27.236.254:~/laravel-production
                     '''
                 }
@@ -49,14 +44,8 @@ pipeline {
     }
 
     post {
-        always {
-            echo "Pipeline selesai"
-        }
-        success {
-            echo "Pipeline berhasil!"
-        }
-        failure {
-            echo "Pipeline gagal. Periksa log!"
-        }
+        always { echo "Pipeline selesai" }
+        success { echo "Pipeline berhasil!" }
+        failure { echo "Pipeline gagal. Periksa log!" }
     }
 }
